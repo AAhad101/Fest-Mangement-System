@@ -78,3 +78,34 @@ exports.registerParticipant = async (req, res) => {
         res.status(500).json({message: "Server error during registration", error});
     }
 };
+
+exports.requestPasswordReset = async (req, res) => {
+    try{
+        const { newPassword, reason } = req.body;
+        const hashedPassword = await bcrypt.hash(newPassword, 10); // Hash immediately
+
+        const user = await User.findById(req.user.id);
+        user.passwordResetRequests.push({
+            newPasswordHash: hashedPassword,
+            reason,
+            status: 'Pending'
+        });
+
+        await user.save();
+        res.status(201).json({message: "Reset request submitted to Admin."});
+    } 
+
+    catch(error){
+        res.status(500).json({message: "Request failed."});
+    }
+};
+
+exports.getResetHistory = async (req, res) => {
+    try{
+        const user = await User.findById(req.user.id).select('passwordResetRequests');
+        res.status(200).json(user.passwordResetRequests);
+    } 
+    catch(error){
+        res.status(500).json({message: "Error fetching history", error: error.message});
+    }
+};

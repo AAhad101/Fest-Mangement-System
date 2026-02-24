@@ -21,6 +21,8 @@ import AdminDashboard from './pages/AdminDashboard';
 import ManageOrganizers from './pages/ManageOrganizers';
 import PendingApprovals from './pages/PendingApprovals';
 import QRScanner from './pages/QRScanner';
+import OrganizerSettings from './pages/OrganizerSettings';
+import AdminSecurity from './pages/AdminSecurity';
 
 function App() {
   return (
@@ -128,6 +130,18 @@ function App() {
             <Route path="/organizer/scan" element={
               <ProtectedRoute allowedRoles={['Organizer']}>
                 <QRScanner />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/organizer/settings" element={
+              <ProtectedRoute allowedRoles={['Organizer']}>
+                <OrganizerSettings />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/admin/security" element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <AdminSecurity />
               </ProtectedRoute>
             } />
 

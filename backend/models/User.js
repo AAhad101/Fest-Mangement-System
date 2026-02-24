@@ -20,7 +20,16 @@ const userSchema = new mongoose.Schema({
     category: String,
     description: String,
     contactEmail: String,   
-    discordWebhook: {type: String, default: ""}
+    discordWebhook: {type: String, default: ""},
+
+    passwordResetRequests: [{
+        newPasswordHash: String,
+        reason: String,
+        status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' },
+        adminComments: String,
+        requestedAt: { type: Date, default: Date.now },
+        resolvedAt: Date
+    }]
 
     // Timestamps to maintain createdAt and updatedAt timestamps for each document
     // Can be used to find trending events in the last 24 hours

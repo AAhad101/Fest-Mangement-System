@@ -5,7 +5,9 @@ const {
     getAllOrganizers,
     deleteOrganizer,
     getAllEventsAdmin,
-    moderateEvent
+    moderateEvent,
+    getAllResetRequests,
+    handleResetRequest
 } = require('../controllers/adminController');
 const {protect, authorize} = require('../middleware/authMiddleware');
 
@@ -15,5 +17,7 @@ router.get('/organizers', protect, authorize('Admin'), getAllOrganizers);
 router.delete('/organizers/:id', protect, authorize('Admin'), deleteOrganizer);
 router.get('/events', protect, authorize('Admin'), getAllEventsAdmin);
 router.put('/events/:id/moderate', protect, authorize('Admin'), moderateEvent);
+router.get('/reset-requests', protect, authorize('Admin'), getAllResetRequests);
+router.put('/handle-reset', protect, authorize('Admin'), handleResetRequest);
 
 module.exports = router;

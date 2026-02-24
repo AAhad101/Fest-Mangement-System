@@ -83,3 +83,49 @@ exports.moderateEvent = async (req, res) => {
     }
 };
 
+exports.handleResetRequest = async (req, res) => {
+    try{
+        const { userId, requestId, action, comments } = req.body; // action: 'Approved' or 'Rejected'
+        const user = await User.findById(userId);
+        
+        const request = user.passwordResetRequests.id(requestId);
+        request.status = action;
+        request.adminComments = comments;
+        request.resolvedAt = Date.now();
+
+        if(action === 'Approved'){
+            user.password = request.newPasswordHash; // Automatic update
+        }
+
+        await user.save();
+        res.json({message: `Password reset ${action.toLowerCase()}ed.`});
+    } 
+
+    catch(error){
+        res.status(500).json({message: "Action failed."});
+    }
+};
+
+exports.getAllResetRequests = async (req, res) => {
+    try{
+        // Find all users who have at least one reset request
+        const users = await User.find({"passwordResetRequests.0":{$exists: true}})
+            .select('organizerName email passwordResetRequests');
+        
+        // Flatten the requests and include user info for the Admin UI
+        const allRequests = users.flatMap(user => 
+            user.passwordResetRequests.map(req => ({
+                userId: user._id,
+                organizerName: user.organizerName,
+                email: user.email,
+                ...req._doc
+            }))
+        );
+
+        res.status(200).json(allRequests);
+    } 
+
+    catch(error){
+        res.status(500).json({ message: "Error fetching requests", error: error.message });
+    }
+};

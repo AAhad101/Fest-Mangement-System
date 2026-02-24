@@ -44,6 +44,7 @@ const Navbar = () => {
                         <Link to="/organizer/dashboard"><LayoutDashboard size={18}/> Dashboard</Link>
                         <Link to="/organizer/create"><PlusSquare size={18}/> Create Event</Link>
                         <Link to="/organizer/approvals">Approvals</Link>
+                        <Link to="/organizer/settings">Settings</Link>
                     </>
                 )}
 
@@ -52,6 +53,7 @@ const Navbar = () => {
                     <>
                         <Link to="/admin/dashboard"><ShieldCheck size={18}/> Dashboard</Link>
                         <Link to="/admin/manage-clubs"><Users size={18}/> Manage Organizers</Link>
+                        <Link to="/admin/security">Security Requests</Link>
                     </>
                 )}
             </div>
