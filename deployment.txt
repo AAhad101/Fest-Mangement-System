@@ -1,0 +1,2 @@
+Frontend URL: https://fest-mangement-system-gsgd.vercel.app/
+Backend API URL: https://fest-mangement-system.onrender.com/
