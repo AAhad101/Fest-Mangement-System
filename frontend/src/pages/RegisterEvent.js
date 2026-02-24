@@ -108,26 +108,33 @@ const RegisterEvent = () => {
                 {/* Tier A: Payment Section (Only if Fee > 0) */}
                 {event.registrationFee > 0 && (
                     <div className="payment-approval-box" style={{ 
-                        marginTop: '20px', 
-                        padding: '15px', 
-                        border: '2px solid #007bff', 
-                        borderRadius: '8px',
-                        backgroundColor: '#f0f7ff' 
+                        marginTop: '20px', padding: '15px', border: '2px solid #007bff', 
+                        borderRadius: '8px', backgroundColor: '#f0f7ff' 
                     }}>
                         <h3 style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#0056b3' }}>
-                            <CreditCard size={20} /> Payment Required: ₹{event.registrationFee}
+                            <CreditCard size={20} /> Upload Payment Proof
                         </h3>
                         <p style={{ fontSize: '0.85rem', marginBottom: '10px' }}>
-                            <Info size={14} /> <strong>Organizer Note:</strong> This event requires manual payment verification. Please pay via UPI and provide your Transaction ID below.
+                            Please upload a screenshot of your successful payment for ₹{event.registrationFee}.
                         </p>
                         <input 
-                            type="text"
-                            placeholder="Enter Transaction ID or Link to Screenshot"
-                            value={paymentProof}
-                            onChange={(e) => setPaymentProof(e.target.value)}
-                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                                const file = e.target.files[0];
+                                const reader = new FileReader();
+                                reader.onloadend = () => setPaymentProof(reader.result); // Stores as Base64 string
+                                reader.readAsDataURL(file);
+                            }}
+                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', background: '#fff' }}
                             required
                         />
+                        {paymentProof && (
+                            <div style={{ marginTop: '10px' }}>
+                                <p style={{ fontSize: '0.75rem' }}>Image Preview:</p>
+                                <img src={paymentProof} alt="Preview" style={{ width: '150px', borderRadius: '4px', border: '1px solid #ddd' }} />
+                            </div>
+                        )}
                     </div>
                 )}
 

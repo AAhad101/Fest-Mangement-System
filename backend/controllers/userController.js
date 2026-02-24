@@ -54,44 +54,36 @@ exports.getUserProfile = async (req, res) => {
         res.status(500).json({message: "Error fetching profile", error: error.message});
     }
 };
-
 exports.getMyEvents = async (req, res) => {
-    try{
+    try {
         const userId = req.user.id;
-
-        // 1. Fetch all registrations for this user
-        // We populate 'event' to get name, type, and schedule (Section 9.2)
-        const registrations = await Registration.find({participant: userId})
+        const registrations = await Registration.find({ participant: userId })
             .populate({
                 path: 'event',
                 select: 'name eventType startDate endDate organizer',
-                populate: {path: 'organizer', select: 'organizerName'}
+                populate: { path: 'organizer', select: 'organizerName' }
             })
-            .sort({createdAt: -1});
+            .sort({ createdAt: -1 });
         
         const now = new Date();
 
-        // 2. Filter for "Upcoming Events" (Registered and not yet started/ended)
+        // Only show 'Successful' (approved) or 'Registered' (free) events
         const upcomingEvents = registrations.filter(reg =>
-            reg.status === 'Registered' && new Date(reg.event.startDate) > now
+            (reg.status === 'Successful' || reg.status === 'Registered') && 
+            new Date(reg.event.startDate) > now
         );
 
-        // 3. Categorize for "Participation History" tabs (Section 9.2)
         const history = {
-            normal: registrations.filter(reg => reg.event.eventType === 'Normal'),
-            merchandise: registrations.filter(reg => reg.event.eventType === 'Merchandise'),
-            completed: registrations.filter(reg => new Date(reg.event.endDate) < now),
-            cancelled: registrations.filter(reg => reg.status === 'Cancelled' || reg.status === 'Rejected')
+            normal: registrations.filter(reg => reg.event.eventType === 'Normal' && reg.status === 'Successful'),
+            merchandise: registrations.filter(reg => reg.event.eventType === 'Merchandise' && reg.status === 'Successful'),
+            pending: registrations.filter(reg => reg.status === 'Pending'), // Added for transparency
+            completed: registrations.filter(reg => new Date(reg.event.endDate) < now && reg.status === 'Successful'),
+            cancelled: registrations.filter(reg => reg.status === 'Rejected')
         };
 
-        res.status(200).json({
-            upcomingEvents,
-            participationHistory: history
-        });
-    }
-
-    catch(error){
-        res.status(500).json({message: "Error fetching dashboard data", error: error.message});
+        res.status(200).json({ upcomingEvents, participationHistory: history });
+    } catch (error) {
+        res.status(500).json({ message: "Error", error: error.message });
     }
 };
 

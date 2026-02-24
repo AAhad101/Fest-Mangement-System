@@ -72,10 +72,16 @@ const PendingApprovals = () => {
                             </div>
 
                             <div style={{ backgroundColor: '#f8f9fa', padding: '12px', borderRadius: '8px', marginBottom: '15px' }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#888' }}>PAYMENT PROOF / TXN ID</label>
-                                <p style={{ margin: '5px 0', wordBreak: 'break-all', fontWeight: '500', color: '#007bff' }}>
-                                    {reg.paymentProof}
-                                </p>
+                                <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#888' }}>PAYMENT PROOF SCREENSHOT</label>
+                                <div style={{ marginTop: '10px', textAlign: 'center' }}>
+                                    <img 
+                                        src={reg.paymentProof} 
+                                        alt="Payment Proof" 
+                                        style={{ maxWidth: '100%', maxHeight: '200px', cursor: 'pointer', borderRadius: '4px', border: '1px solid #ddd' }}
+                                        onClick={() => window.open(reg.paymentProof)} 
+                                    />
+                                    <p style={{ fontSize: '0.7rem', color: '#007bff', marginTop: '5px' }}>Click image to enlarge</p>
+                                </div>
                             </div>
 
                             <div className="approval-actions" style={{ display: 'flex', gap: '10px' }}>
