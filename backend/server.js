@@ -20,6 +20,8 @@ const registrationRoutes = require('./routes/registrationRoutes');
 app.use('/api/registrations', registrationRoutes);
 const clubRoutes = require('./routes/clubRoutes');
 app.use('/api/clubs', clubRoutes);
+const commentRoutes = require('./routes/commentRoutes');
+app.use('/api/comments', commentRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)

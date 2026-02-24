@@ -75,7 +75,12 @@ const OrganizerDashboard = () => {
                     {events.length > 0 ? events.map(event => (
                         <div key={event._id} className="organizer-event-item">
                             <div className="event-main-info">
-                                <h4>{event.name}</h4>
+                                <Link to={`/events/${event._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                    <h4 style={{ cursor: 'pointer', borderBottom: '1px dashed #ccc' }}>
+                                        {event.name}
+                                    </h4>
+                                </Link>
+
                                 <span className={`status-pill ${event.status.toLowerCase()}`}>
                                     {event.status}
                                 </span>

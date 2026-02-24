@@ -3,10 +3,13 @@ import {useParams, useNavigate} from 'react-router-dom';
 import api from '../api/axios';
 import {toast} from 'react-hot-toast';
 import {Calendar, Users, Info, AlertCircle} from 'lucide-react';
+import DiscussionForum from '../components/DiscussionForum';
+import {useAuth} from '../context/AuthContext';
 
 const EventDetails = () => {
     const {id} = useParams();
     const navigate = useNavigate();
+    const {user} = useAuth();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -30,6 +33,9 @@ const EventDetails = () => {
     if(loading) return <div>Loading details...</div>;
 
     const {event, availability} = data;
+
+    console.log("Logged in User ID:", user?.id);
+    console.log("Event Organizer ID:", event?.organizer?._id || event?.organizer);
 
     return (
         <div className="details-container">
@@ -88,6 +94,11 @@ const EventDetails = () => {
                     </div>
                 </div>
             </div>
+
+            <DiscussionForum 
+                eventId={id} 
+                isOrganizer={user?.role === 'Organizer' && String(user?.id) === String(event?.organizer?._id || event?.organizer)} 
+            />
         </div>
     );
 };
