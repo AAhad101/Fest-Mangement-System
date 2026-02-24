@@ -7,15 +7,20 @@ const BrowseEvents = () => {
     const [trending, setTrending] = useState([]);
     const [events, setEvents] = useState([]);
     const [search, setSearch] = useState('');
+    const [followedOnly, setFollowedOnly] = useState(false); // New state for Section 9.3
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetchEvents();
-    }, []);
+    }, [followedOnly]); // Refetch when toggle changes
 
     const fetchEvents = async (query = '') => {
         try {
-            const res = await api.get(`/events/browse${query}`);
+            // Append followedOnly to existing search query
+            const baseQuery = query || `?search=${search}`;
+            const finalQuery = `${baseQuery}&followedOnly=${followedOnly}`;
+            
+            const res = await api.get(`/events/browse${finalQuery}`);
             setTrending(res.data.trending);
             setEvents(res.data.allEvents);
         } 
@@ -36,7 +41,7 @@ const BrowseEvents = () => {
 
     return (
         <div className="browse-container">
-            {/* Trending Section (Section 9.1) */}
+            {/* Trending Section */}
             <section className="trending-section">
                 <h2> Trending Events</h2>
                 <div className="trending-grid">
@@ -61,6 +66,19 @@ const BrowseEvents = () => {
                         onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
+                
+                {/* Followed Clubs Filter Toggle */}
+                <div className="filter-toggle">
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                        <input 
+                            type="checkbox" 
+                            checked={followedOnly}
+                            onChange={(e) => setFollowedOnly(e.target.checked)}
+                        />
+                        Followed Clubs Only
+                    </label>
+                </div>
+
                 <button type="submit">Search</button>
             </form>
 

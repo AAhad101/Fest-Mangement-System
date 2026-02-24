@@ -1,6 +1,7 @@
 const Event = require('../models/Event');
 const Registration = require('../models/Registration');
 const crypto = require('crypto');
+const sendTicketEmail = require('../utils/sendEmail');
 
 exports.registerForEvent = async (req, res) => {
     try{
@@ -56,7 +57,7 @@ exports.registerForEvent = async (req, res) => {
             teamName,
             formData: event.eventType === 'Normal' ? formData : undefined,
             purchasedItems: event.eventType === 'Merchandise' ? purchasedItems : undefined,
-            qrCode: event.eventType === 'Merchandise' ? `QR-${ticketID}` : undefined
+            qrCode: `QR-${ticketID}`
         });
 
         await registration.save();
@@ -65,7 +66,32 @@ exports.registerForEvent = async (req, res) => {
         event.attendees.push({user: userId, registeredAt: new Date()});
         await event.save();
 
-        res.status(201).json({message: "Registed successfully!", registration});
+
+        // 6. Mandatory email notification
+        try{
+            // Fetch the user details to get the email and name
+            const User = require('../models/User');
+            const participantUser = await User.findById(userId);
+
+            if(participantUser){
+                await sendTicketEmail({
+                    email: participantUser.email,
+                    userName: `${participantUser.firstName} ${participantUser.lastName}`,
+                    eventName: event.name,
+                    ticketId: ticketID,
+                    eventType: event.eventType,
+                    qrCode: registration.qrCode // The ID/String to be converted to QR
+                });
+                console.log("Ticket email sent successfully.");
+            }
+        } 
+        catch(err){
+            console.error("Email Service Error:", err.message);
+            console.error("Email failed to send, but registration was successful.");
+        }
+
+
+        res.status(201).json({message: "Registered successfully!", registration});
     }
 
     catch(error){

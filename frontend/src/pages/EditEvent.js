@@ -23,7 +23,7 @@ const EditEvent = () => {
 
     const handleUpdate = async () => {
         try{
-            // Rules: Sending status and description
+            // Fulfills Section 10.4: Sending status and description
             await api.put(`/events/update/${id}`, { status, description });
             toast.success("Event updated!");
             navigate('/organizer/dashboard');
@@ -55,7 +55,7 @@ const EditEvent = () => {
                 />
                 
                 <button onClick={handleUpdate} className="publish-btn">
-                    <RefreshCw size={16} /> Update Event
+                    <RefreshCw size={16} /> Save Changes
                 </button>
             </div>
         </div>

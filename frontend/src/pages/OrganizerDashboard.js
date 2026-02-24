@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {useNavigate, Link} from 'react-router-dom';
 import api from '../api/axios';
-import {Plus, Users, DollarSign, FileText, Settings} from 'lucide-react';
+import {Plus, Users, DollarSign, FileText, Settings, Send} from 'lucide-react';
 import {toast} from 'react-hot-toast';
 
 const OrganizerDashboard = () => {
@@ -10,22 +10,34 @@ const OrganizerDashboard = () => {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
+    const fetchDashboardData = async () => {
+        try{
+            const res = await api.get('/events/organizer/dashboard');
+            setEvents(res.data.carouselEvents);
+            setStats(res.data.analytics);
+        } 
+        catch(err){
+            toast.error("Failed to load dashboard data");
+        } 
+        finally{
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchDashboardData = async () => {
-            try{
-                const res = await api.get('/events/organizer/dashboard');
-                setEvents(res.data.carouselEvents);
-                setStats(res.data.analytics);
-            } 
-            catch(err){
-                toast.error("Failed to load dashboard data");
-            } 
-            finally{
-                setLoading(false);
-            }
-        };
         fetchDashboardData();
     }, []);
+
+    const handlePublish = async (eventId) => {
+        try {
+            // Trigger status change to Published
+            await api.put(`/events/update/${eventId}`, { status: 'Published' });
+            toast.success("Event is now live!");
+            fetchDashboardData(); // Refresh list
+        } catch (err) {
+            toast.error("Failed to publish event");
+        }
+    };
 
     if(loading) return <div className="loading">Loading Dashboard...</div>;
 
@@ -70,6 +82,11 @@ const OrganizerDashboard = () => {
                                 <small>{event.eventType} • {new Date(event.startDate).toLocaleDateString()}</small>
                             </div>
                             <div className="event-actions">
+                                {event.status === 'Draft' && (
+                                    <button className="publish-mini-btn" onClick={() => handlePublish(event._id)}>
+                                        <Send size={14} /> Publish
+                                    </button>
+                                )}
                                 <button onClick={() => navigate(`/organizer/event/${event._id}/participants`)}>
                                     <FileText size={16} /> Participants
                                 </button>

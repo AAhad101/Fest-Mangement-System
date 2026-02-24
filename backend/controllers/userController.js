@@ -100,6 +100,10 @@ exports.updateProfile = async (req, res) => {
     try{
         const {firstName, lastName, contactNumber, interests} = req.body;
 
+        if (!firstName || !lastName) {
+            return res.status(400).json({ message: "First and Last name are required." });
+        }
+
         const updatedUser = await User.findByIdAndUpdate(
             req.user.id,
             {
