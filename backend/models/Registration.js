@@ -18,6 +18,7 @@ const registrationSchema = new mongoose.Schema({
 
     teamName: {type: String},   // Optional for team-based events
     attended: {type: Boolean, default: false},  // To track attendance for organizer's analytics
+    attendanceTimestamp: {type: Date},
 
     paymentProof: { type: String },
     status: {type: String, enum: ['Pending', 'Successful', 'Rejected'], default: 'Successful'}

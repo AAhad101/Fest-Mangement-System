@@ -177,3 +177,43 @@ exports.approvePayment = async (req, res) => {
         res.status(500).json({ message: "Approval process failed", error: error.message });
     }
 };
+
+exports.markAttendance = async (req, res) => {
+    try{
+        const {ticketID} = req.body; // Can be scanned or manually typed
+        
+        // Find registration by ticketID and ensure it was 'Successful' (Paid/Approved)
+        const registration = await Registration.findOne({ticketID, status: 'Successful'})
+            .populate('participant', 'firstName lastName email')
+            .populate('event', 'name organizer');
+
+        if(!registration){
+            return res.status(404).json({message: "Invalid or Unapproved Ticket"});
+        }
+
+        // Security: Ensure only the organizer of this event is scanning
+        if(registration.event.organizer.toString() !== req.user.id){
+            return res.status(403).json({message: "Unauthorized: You are not the organizer for this event"});
+        }
+
+        if(registration.attended){
+            return res.status(400).json({ 
+                message: `Already checked in at ${new Date(registration.attendanceTimestamp).toLocaleTimeString()}` 
+            });
+        }
+
+        registration.attended = true;
+        registration.attendanceTimestamp = new Date();
+        await registration.save();
+
+        res.json({
+            message: `Attendance marked for ${registration.participant.firstName}`,
+            participant: `${registration.participant.firstName} ${registration.participant.lastName}`,
+            timestamp: registration.attendanceTimestamp
+        });
+    } 
+
+    catch(error){
+        res.status(500).json({message: "Attendance error", error: error.message});
+    }
+};

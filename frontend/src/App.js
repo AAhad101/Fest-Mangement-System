@@ -20,6 +20,7 @@ import EditEvent from './pages/EditEvent';
 import AdminDashboard from './pages/AdminDashboard';
 import ManageOrganizers from './pages/ManageOrganizers';
 import PendingApprovals from './pages/PendingApprovals';
+import QRScanner from './pages/QRScanner';
 
 function App() {
   return (
@@ -121,6 +122,12 @@ function App() {
             <Route path="/organizer/approvals" element={
               <ProtectedRoute allowedRoles={['Organizer']}>
                 <PendingApprovals />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/organizer/scan" element={
+              <ProtectedRoute allowedRoles={['Organizer']}>
+                <QRScanner />
               </ProtectedRoute>
             } />
 

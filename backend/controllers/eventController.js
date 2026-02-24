@@ -264,6 +264,8 @@ exports.getEventRegistrations = async (req, res) => {
             registrationDate: reg.createdAt,
             ticketID: reg.ticketID,
             status: reg.status,
+            attended: reg.attended || false,
+            attendanceTimestamp: reg.attendanceTimestamp || null,
             team: reg.teamName || "Individual",
             responses: event.eventType === 'Normal' ? reg.formData : reg.purchasedItems 
         }));
@@ -374,7 +376,7 @@ exports.exportEventParticipants = async (req, res) => {
             .populate('participant', 'firstName lastName email contactNumber');
 
         // 3. Construct CSV Header
-        let csvContent = "Name,Email,Registration Date,Ticket ID,Status,Custom Responses/Items\n";
+        let csvContent = "Name,Email,Registration Date,Ticket ID,Status,Custom Responses/Items,Attended,Check-in Time\n";
 
         // 4. Append Participant Data
         registrations.forEach(reg => {
@@ -389,7 +391,9 @@ exports.exportEventParticipants = async (req, res) => {
                 ? JSON.stringify(reg.formData).replace(/,/g, ';') 
                 : reg.purchasedItems.map(i => `${i.itemName}(${i.size})`).join('; ');
 
-            csvContent += `${name},${email},${date},${ticket},${status},"${responses}"\n`;
+            checkIn = reg.attendanceTimestamp ? new Date(reg.attendanceTimestamp).toLocaleString() : "N/A";
+
+            csvContent += `${name},${email},${date},${ticket},${status},"${responses}",${reg.attended ? 'YES' : 'NO'},${checkIn}\n`;
         });
 
         // 5. Set Headers for File Download
