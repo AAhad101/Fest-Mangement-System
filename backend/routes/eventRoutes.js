@@ -8,7 +8,8 @@ const{
     getOrganizerDashboard,
     getEventRegistrations,
     updateEvent,
-    exportEventParticipants
+    exportEventParticipants,
+    getPendingApprovals
 } = require('../controllers/eventController');
 const{protect, authorize} = require('../middleware/authMiddleware');
 
@@ -35,5 +36,8 @@ router.put('/update/:id', protect, authorize('Organizer'), updateEvent);
 
 // GET /api/events/organizer/event/:eventId/export
 router.get('/organizer/event/:eventId/export', protect, authorize('Organizer'), exportEventParticipants);
+
+// Route for organizer to see their specific pending approvals
+router.get('/organizer/approvals', protect, authorize('Organizer'), getPendingApprovals);
 
 module.exports = router;

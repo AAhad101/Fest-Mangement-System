@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react';
 import {useParams, useNavigate} from 'react-router-dom';
 import api from '../api/axios';
 import {toast} from 'react-hot-toast';
+import { CreditCard, Info } from 'lucide-react';
 
 const RegisterEvent = () => {
     const {id} = useParams();
@@ -10,6 +11,7 @@ const RegisterEvent = () => {
     const [formData, setFormData] = useState({});
     const [selectedItems, setSelectedItems] = useState([]); // For Merch
     const [teamName, setTeamName] = useState('');
+    const [paymentProof, setPaymentProof] = useState(''); // New state for Tier A
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -31,14 +33,28 @@ const RegisterEvent = () => {
     const handleRegister = async (e) => {
         e.preventDefault();
         try{
+            // Tier A Validation: If there is a fee, payment proof is mandatory
+            if (event.registrationFee > 0 && !paymentProof) {
+                return toast.error("Please provide a transaction ID or proof of payment.");
+            }
+
             const payload = {
                 eventId: id,
                 formData: event.eventType === 'Normal' ? formData : undefined,
                 purchasedItems: event.eventType === 'Merchandise' ? selectedItems : undefined,
-                teamName
+                teamName,
+                paymentProof: event.registrationFee > 0 ? paymentProof : undefined // Sent for Tier A
             };
-            await api.post('/registrations/register', payload);
-            toast.success("Registration Successful!");
+
+            const res = await api.post('/registrations/register', payload);
+            
+            // Success handling based on status
+            if (res.data.status === 'Pending') {
+                toast.success("Payment proof submitted! Awaiting organizer approval.");
+            } else {
+                toast.success("Registration Successful!");
+            }
+            
             navigate('/my-events');
         }
         catch(err){
@@ -46,24 +62,19 @@ const RegisterEvent = () => {
         }
     };
 
-    if (!event) return <div>Loading form...</div>;
+    if (!event) return <div>Loading...</div>;
 
     return (
-        <div className="registration-form-container">
+        <div className="registration-container">
             <h2>Register for {event.name}</h2>
-            <form onSubmit={handleRegister}>
-                {/* Team Name Field */}
-                <div className="form-group">
-                    <label>Team Name (Optional)</label>
-                    <input type="text" value={teamName} onChange={(e) => setTeamName(e.target.value)} placeholder="Enter team name" />
-                </div>
-
-                {/* Normal Event: Custom Form Builder Logic */}
-                {event.eventType === 'Normal' && event.customFormFields?.map((field, index) => (
-                    <div key={index} className="form-group">
+            <form onSubmit={handleRegister} className="registration-form">
+                
+                {/* Normal Event: Custom Form Fields */}
+                {event.eventType === 'Normal' && event.customFormFields?.map((field, idx) => (
+                    <div key={idx} className="form-group">
                         <label>{field.label} {field.required && '*'}</label>
                         <input 
-                            type={field.type === 'number' ? 'number' : 'text'} 
+                            type={field.fieldType} 
                             required={field.required}
                             onChange={(e) => handleFormChange(field.label, e.target.value)}
                         />
@@ -88,13 +99,41 @@ const RegisterEvent = () => {
                                         setSelectedItems(updated);
                                     }}
                                 />
-                                <small>Stock: {item.stockQuantity}</small>
+                                <small>Stock: {item.quantity}</small>
                             </div>
                         ))}
                     </div>
                 )}
 
-                <button type="submit" className="submit-reg-btn">Complete Registration</button>
+                {/* Tier A: Payment Section (Only if Fee > 0) */}
+                {event.registrationFee > 0 && (
+                    <div className="payment-approval-box" style={{ 
+                        marginTop: '20px', 
+                        padding: '15px', 
+                        border: '2px solid #007bff', 
+                        borderRadius: '8px',
+                        backgroundColor: '#f0f7ff' 
+                    }}>
+                        <h3 style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#0056b3' }}>
+                            <CreditCard size={20} /> Payment Required: ₹{event.registrationFee}
+                        </h3>
+                        <p style={{ fontSize: '0.85rem', marginBottom: '10px' }}>
+                            <Info size={14} /> <strong>Organizer Note:</strong> This event requires manual payment verification. Please pay via UPI and provide your Transaction ID below.
+                        </p>
+                        <input 
+                            type="text"
+                            placeholder="Enter Transaction ID or Link to Screenshot"
+                            value={paymentProof}
+                            onChange={(e) => setPaymentProof(e.target.value)}
+                            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+                            required
+                        />
+                    </div>
+                )}
+
+                <button type="submit" className="submit-reg-btn" style={{ marginTop: '20px' }}>
+                    {event.registrationFee > 0 ? "Submit for Approval" : "Complete Registration"}
+                </button>
             </form>
         </div>
     );

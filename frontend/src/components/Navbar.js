@@ -43,6 +43,7 @@ const Navbar = () => {
                     <>
                         <Link to="/organizer/dashboard"><LayoutDashboard size={18}/> Dashboard</Link>
                         <Link to="/organizer/create"><PlusSquare size={18}/> Create Event</Link>
+                        <Link to="/organizer/approvals">Approvals</Link>
                     </>
                 )}
 

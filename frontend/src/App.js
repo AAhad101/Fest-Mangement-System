@@ -19,6 +19,7 @@ import EventParticipants from './pages/EventParticipants';
 import EditEvent from './pages/EditEvent';
 import AdminDashboard from './pages/AdminDashboard';
 import ManageOrganizers from './pages/ManageOrganizers';
+import PendingApprovals from './pages/PendingApprovals';
 
 function App() {
   return (
@@ -114,6 +115,12 @@ function App() {
             <Route path="/admin/manage-clubs" element={
               <ProtectedRoute allowedRoles={['Admin']}>
                 <ManageOrganizers />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/organizer/approvals" element={
+              <ProtectedRoute allowedRoles={['Organizer']}>
+                <PendingApprovals />
               </ProtectedRoute>
             } />
 

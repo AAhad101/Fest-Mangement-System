@@ -17,10 +17,10 @@ const registrationSchema = new mongoose.Schema({
     }],
 
     teamName: {type: String},   // Optional for team-based events
-
     attended: {type: Boolean, default: false},  // To track attendance for organizer's analytics
 
-    status: {type: String, enum: ['Registered', 'Cancelled', 'Completed'], default: 'Registered'}
+    paymentProof: { type: String },
+    status: {type: String, enum: ['Pending', 'Successful', 'Rejected'], default: 'Successful'}
 }, {timestamps: true});
 
 module.exports = mongoose.model('Registration', registrationSchema);

@@ -401,3 +401,18 @@ exports.exportEventParticipants = async (req, res) => {
         res.status(500).json({ message: "Export failed", error: error.message });
     }
 };
+
+exports.getPendingApprovals = async (req, res) => {
+    try{
+        const events = await Event.find({ organizer: req.user.id });
+        const eventIds = events.map(e => e._id);
+        const pending = await Registration.find({ 
+            event: { $in: eventIds }, 
+            status: 'Pending' 
+        }).populate('participant event');
+        res.json(pending);
+    } 
+    catch(error){
+        res.status(500).json({ message: "Failed to fetch approvals" });
+    }
+};
